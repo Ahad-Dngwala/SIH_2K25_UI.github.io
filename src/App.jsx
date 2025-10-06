@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigationType, Navigate } from 'react-router-dom';
 
 // Import all pages
 import ProjectsPage from './pages/ProjectsPage';
@@ -8,6 +8,11 @@ import DashboardPage from './pages/DashboardPage';
 import GeneralDashboardPage from './pages/GeneralDashboardPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import NgoDashboard from './pages/ngo/NgoDashboard';
+import RegulatoryBodyDashboard from './pages/RegulatoryBody/RegulatoryBodyDashboard';
+// Import other dashboard components as they're created
+import BuyerDashboard from './pages/buyer/BuyerDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Import components
 import Navbar from './components/Navbar/Navbar';
@@ -100,18 +105,92 @@ const PageWrapper = ({ children }) => {
   );
 };
 
+// Create Auth Context
+export const AuthContext = createContext({
+  user: null,
+  login: () => {},
+  logout: () => {}
+});
+
+export const useAuth = () => useContext(AuthContext);
+
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(() => {
+    // Check localStorage for existing session
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  if (!user) {
+    // Redirect to login if not authenticated
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};
+
 const AppContent = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   
-  const renderPage = (Component) => (
-    <>
-      <Navbar1 /> {/* Navbar1 for all other pages */}
+  const renderPage = (Component, isPublic = true) => {
+    const isDashboardRoute = [
+      '/dashboard',
+      '/ngo/dashboard',
+      '/regulatory/dashboard',
+      '/buyer/dashboard',
+      '/admin/dashboard'
+    ].includes(location.pathname);
+    
+    const content = (
       <PageWrapper>
         <Component />
       </PageWrapper>
-    </>
-  );
+    );
+
+    if (isDashboardRoute) {
+      return !isPublic ? (
+        <ProtectedRoute>
+          {content}
+        </ProtectedRoute>
+      ) : content;
+    }
+
+    return !isPublic ? (
+      <ProtectedRoute>
+        <Navbar1 />
+        {content}
+      </ProtectedRoute>
+    ) : (
+      <>
+        <Navbar1 />
+        {content}
+      </>
+    );
+  }
+  
 
   return (
     <div className="min-h-screen">
@@ -119,14 +198,23 @@ const AppContent = () => {
         {/* HomePage with LoadingPage */}
         <Route path="/" element={<HomePageWithLoading />} />
         
-        {/* Other pages with LoadingSpinner and Navbar1 */}
+        {/* Public routes */}
         <Route path="/projects" element={renderPage(ProjectsPage)} />
         <Route path="/marketplace" element={renderPage(MarketplacePage)} />
-        <Route path="/dashboard" element={renderPage(DashboardPage)} />
         <Route path="/dashboards" element={renderPage(GeneralDashboardPage)} />
         <Route path="/login" element={renderPage(LoginPage)} />
         <Route path="/signup" element={renderPage(SignupPage)} />
         <Route path="/mobile/project-details" element={<ProjectDetails />} />
+        
+        {/* Protected routes */}
+        <Route path="/dashboard" element={renderPage(DashboardPage, false)} />
+        <Route path="/ngo/dashboard" element={renderPage(NgoDashboard, false)} />
+        <Route path="/regulatory/dashboard" element={renderPage(RegulatoryBodyDashboard, false)} />
+        <Route path="/buyer/dashboard" element={renderPage(BuyerDashboard, false)} />
+        <Route path="/admin/dashboard" element={renderPage(AdminDashboard, false)} />
+        
+        {/* Catch all other routes */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   );
@@ -135,7 +223,9 @@ const AppContent = () => {
 const App = () => {
   return (
     <Router>
-      <AppContent />
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </Router>
   );
 };

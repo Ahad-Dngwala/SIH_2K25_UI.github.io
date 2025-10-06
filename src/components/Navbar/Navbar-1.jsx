@@ -78,7 +78,7 @@ const Navbar1 = () => {
       </nav>
       
       {/* Spacer to prevent content from being hidden behind fixed navbar */}
-      <div className="h-24"></div>
+      <div className="h-[4.5rem]"></div>
       
       {/* Mobile Menu - Fullscreen */}
       <div className={`fixed inset-0 bg-black/95 backdrop-blur-lg z-40 transition-all duration-500 ${

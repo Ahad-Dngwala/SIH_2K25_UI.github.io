@@ -12,30 +12,30 @@ const HeroSection = () => {
     {
       type: 'video',
       sources: [
-        { src: 'https://cdn.pixabay.com/video/2019/04/09/22761-332134438_large.mp4', type: 'video/mp4' }
+        { src: '' }
       ],
-      fallback: '/photo-1666884077124-035f4eefb98d.avif'
+      fallback: 'https://wallpaperaccess.com/full/4574532.jpg'
     },
     {
       type: 'video', 
       sources: [
-        { src: 'https://cdn.pixabay.com/video/2022/03/11/110698-688449849_large.mp4', type: 'video/mp4' }
+        { src: '' }
       ],
-      fallback: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=1920&h=1080&fit=crop'
+      fallback: 'https://wallpaperaccess.com/full/3495156.jpg'
     },
     {
       type: 'video',
       sources: [
-        { src: 'https://cdn.pixabay.com/video/2020/04/18/37755-410745193_large.mp4', type: 'video/mp4' }
+        { src: '' }
       ],
       fallback: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920&h=1080&fit=crop'
     },
     {
       type: 'video',
       sources: [
-        { src: 'https://cdn.pixabay.com/video/2019/09/16/27130-361520344_large.mp4', type: 'video/mp4' }
+        { src: '' }
       ],
-      fallback: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&h=1080&fit=crop'
+      fallback: 'https://cms.happiplans.com/wp-content/uploads/2023/10/happiplans-promotions-homepage-scaled.jpg'
     }
   ];
 
